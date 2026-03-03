@@ -1,0 +1,163 @@
+- name: My first play
+  hosts: clubhosts
+  vars_prompt:
+    - name: ssh_password
+      prompt: "Enter the ssh password for scp"
+
+  tasks:
+    - name: Ping Hosts
+      ansible.builtin.ping:
+
+    - name: Print Message
+      ansible.builtin.debug:
+        msg: Hello Champions League
+
+    - name: install packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: latest
+      become: true
+      loop:
+        - pip
+        - expect
+        - apache2
+        - vsftpd
+
+    - name: add groups
+      ansible.builtin.group:
+        name: "{{ item }}"
+        state: present
+      become: true
+      loop:
+        - Attack
+        - Defense
+        - Captain
+
+    - name: add attackers
+      ansible.builtin.user:
+        name: "{{ item }}"
+        groups: Attack
+        append: true
+        umask: 0111
+      become: true
+      loop:
+        - "{{ attacker1 }}"
+        - "{{ attacker2 }}"
+
+    - name: configure defenders
+      ansible.builtin.user:
+        name: "{{ item }}"
+        groups: Defense
+        append: true
+        umask: 0666
+      become: true
+      loop:
+        - "{{ defender1 }}"
+        - "{{ defender2 }}"
+
+    - name: configure captain
+      ansible.builtin.user:
+        name: "{{ captain }}"
+        groups: Captain, sudo
+        append: true
+        umask: 0000
+      become: true
+
+    - name: create captain directory
+      become: true
+      ansible.builtin.file:
+        path: "/{{ inventory_hostname }}_Admin/Route_Info/"
+        state: directory
+        mode: "774"
+        owner: "{{ captain }}"
+        group: Captain
+
+    - name: create captain details
+      become: true
+      ansible.builtin.file:
+        path: "/{{ inventory_hostname }}_Admin/Route_Info/Captain_Details.txt"
+        state: touch
+        mode: "774"
+        owner: "{{ captain }}"
+        group: Captain
+
+    - name: insert name into file
+      become: true
+      ansible.builtin.copy:
+        content: "{{ captain_fullname }}\n{{ captain_nationality }}\n{{ captain }}\n"
+        dest: "/{{ inventory_hostname }}_Admin/Route_Info/Captain_Details.txt"
+        
+    - name: create shell_output
+      become: true
+      ansible.builtin.file:
+        path: "/{{ inventory_hostname }}_Admin/Route_Info/shell_output.txt"
+        state: touch
+        mode: "775"
+        owner: "{{ captain }}"
+        group: Captain
+
+    - name: get routing table
+      become: true
+      ansible.builtin.shell:
+        cmd: "netstat -rn > /{{ inventory_hostname }}_Admin/Route_Info/shell_output.txt"
+
+    - name: get top talkers
+      become: true
+      ansible.builtin.shell:
+        cmd: "ps aux --sort=-%mem | head -n 11 >> /{{ inventory_hostname }}_Admin/Route_Info/shell_output.txt"
+
+    - name: scp output file
+      ansible.builtin.expect:
+        command: "sudo scp /{{ inventory_hostname }}_Admin/Route_Info/shell_output.txt netman@10.224.77.6:/home/netman/Documents/python_code/lab6/{{ inventory_hostname }}_output"
+        responses:
+          "netman@10.224.77.6's password": 
+            - "{{ ssh_password }}"
+
+
+    - name: create key directory
+      become: true
+      ansible.builtin.file:
+        path: "/tmp/keys/"
+        state: directory
+        mode: "775"
+      tags:
+        - objective3.5
+
+    - name: copy .ssh files into one directroy
+      ansible.builtin.shell:
+        cmd: "cp /home/{{ item }}/.ssh/id_ed25519.pub /tmp/keys/{{ inventory_hostname }}_{{ item }}_authorizedKeys.txt"
+      become: true
+      loop:
+        - "{{ attacker2 }}"
+        - "{{ defender2 }}"
+        - "{{ captain }}"
+      tags:
+        - objective3.5
+
+    - name: assemble files
+      become: true
+      ansible.builtin.assemble:
+        dest: "/root/.ssh/{{ inventory_hostname }}_authorizedKeys.txt"
+        src: "/tmp/keys"
+      tags: 
+        - objective3.5
+
+    - name: scp ssh file
+      become: true
+      ansible.builtin.expect:
+        command: "sudo scp /root/.ssh/{{ inventory_hostname }}_authorizedKeys.txt netman@10.224.77.6:/tmp/keys/"
+        responses:
+          "netman@10.224.77.6's password":
+            - "{{ ssh_password }}"
+      tags:
+        - objective3.5
+
+- name: copy files to root
+  hosts: 127.0.0.1
+  tasks:
+    - name: move files
+      ansible.builtin.shell:
+        cmd: "cp /tmp/keys/* /root/.ssh/"
+      become: true
+      tags:
+        - objective3.5

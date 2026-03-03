@@ -1,0 +1,17 @@
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface
+0.0.0.0         10.224.76.1     0.0.0.0         UG        0 0          0 ens33
+10.224.76.0     0.0.0.0         255.255.252.0   U         0 0          0 ens33
+172.17.0.0      0.0.0.0         255.255.0.0     U         0 0          0 docker0
+192.168.122.0   0.0.0.0         255.255.255.0   U         0 0          0 virbr0
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+jenkins     1589  0.0  4.6 4698004 378640 ?      Ssl  Jan09  71:07 /usr/bin/java -Djava.awt.headless=true -jar /usr/share/java/jenkins.war --webroot=/var/cache/jenkins/war --httpPort=8080
+root        2958  0.4  4.0 1983160 331096 ?      Sl   Jan09 300:38 falcon-sensor-bpf
+student   833606  0.0  3.5 3891612 284732 ?      Ssl  Feb24   2:14 /usr/bin/gnome-shell
+student   834096  0.0  1.1 275216 90528 ?        S    Feb24   0:00 /usr/bin/Xwayland :0 -rootless -noreset -accessx -core -auth /run/user/1001/.mutter-Xwaylandauth.Q0RZK3 -listenfd 4 -listenfd 5 -displayfd 6 -initfd 7 -byteswappedclients
+student   834419  0.0  1.1 738064 90312 ?        Sl   Feb24   0:00 /usr/libexec/mutter-x11-frames
+student   834305  0.0  1.0 657212 83292 ?        Ssl  Feb24   0:00 /usr/libexec/gsd-xsettings
+root        1849  0.0  0.9 1983104 78892 ?       Ssl  Jan09   4:46 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+student   833801  0.0  0.7 826372 63652 ?        Sl   Feb24   0:00 /usr/libexec/evolution-data-server/evolution-alarm-notify
+root         355  0.0  0.7 112708 58992 ?        S<s  Jan09   0:38 /usr/lib/systemd/systemd-journald
+student   834352  0.0  0.7 3068616 56880 ?       Sl   Feb24   1:05 gjs /usr/share/gnome-shell/extensions/ding@rastersoft.com/app/ding.js -E -P /usr/share/gnome-shell/extensions/ding@rastersoft.com/app
